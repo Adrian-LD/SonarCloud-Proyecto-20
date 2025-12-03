@@ -15,11 +15,9 @@ jobs:
         image: mongo:6
         ports:
           - 27017:27017
-        options: >-
-          --health-cmd='mongosh --eval "db.adminCommand({ ping: 1 })"'
-          --health-interval=10s
-          --health-timeout=5s
-          --health-retries=5
+        # No custom health options here to avoid Docker/quoting issues on runners.
+        # The workflow uses an explicit wait loop (see 'Prepare server DB for tests')
+        # to detect when Mongo is accepting connections on localhost:27017.
     steps:
       - name: Checkout
         uses: actions/checkout@v4
