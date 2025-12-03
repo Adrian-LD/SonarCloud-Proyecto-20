@@ -1,0 +1,43 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "nodemon --exec ts-node --transpile-only ./src/index.ts",
+    "start": "node ./dist/index.js",
+    "build": "tsc",
+    "test": "cross-env NODE_ENV=test vitest run",
+    "test:coverage": "cross-env NODE_ENV=test vitest run --coverage"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "argon2": "^0.44.0",
+    "axios": "^1.4.0",
+    "cloudinary": "^2.8.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.0.3",
+    "express": "^4.18.2",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^6.9.2",
+    "morgan": "^1.10.0",
+    "multer": "^2.0.2",
+    "replicate": "^1.4.0"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.19",
+    "@types/express": "^4.17.17",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/morgan": "^1.9.4",
+    "@types/supertest": "^2.0.12",
+    "cross-env": "^7.0.3",
+    "mongodb-memory-server": "^8.12.1",
+    "nodemon": "^2.0.20",
+    "supertest": "^6.3.0",
+    "ts-node": "^10.9.1",
+    "vitest": "^3.2.4",
+    "@vitest/coverage-v8": "^3.2.4"
+  }
+}
