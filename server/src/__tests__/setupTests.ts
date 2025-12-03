@@ -14,12 +14,16 @@ beforeAll(async () => {
 	// don't start an in-memory instance. This avoids issues on systems missing
 	// libcrypto/OpenSSL versions required by the downloaded mongod binary.
 	if (process.env.NODE_ENV === 'test') {
-		if (process.env.TEST_MONGO_URI) {
-			// Use the provided TEST_MONGO_URI (no in-memory mongo needed)
-			// eslint-disable-next-line no-console
-			console.info('[test-setup] Using existing TEST_MONGO_URI, skipping in-memory MongoDB')
-			return
-		}
+		const providedTestUri = process.env.TEST_MONGO_URI;
+		// If TEST_MONGO_URI is provided but equals the generic localhost default
+		// (often present in `.env.test`), still prefer an in-memory instance so
+		// CI/local tests are isolated. Only skip in-memory when a custom URI is set.
+		if (providedTestUri && providedTestUri !== 'mongodb://localhost:27017') {
+				// Use the provided TEST_MONGO_URI (no in-memory mongo needed)
+				// eslint-disable-next-line no-console
+				console.info('[test-setup] Using existing TEST_MONGO_URI, skipping in-memory MongoDB')
+				return
+			}
 
 		mongod = await MongoMemoryServer.create();
 		const uri = mongod.getUri();

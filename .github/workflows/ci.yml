@@ -10,6 +10,16 @@ on:
 jobs:
   test-and-scan:
     runs-on: ubuntu-latest
+    services:
+      mongo:
+        image: mongo:6
+        ports:
+          - 27017:27017
+        options: >-
+          --health-cmd='mongosh --eval "db.adminCommand({ ping: 1 })"'
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -39,11 +49,8 @@ jobs:
       - name: Install server dependencies
         run: |
           cd server
-          if [ -f package-lock.json ]; then
-            npm ci
-          else
-            npm install
-          fi
+          # Use legacy-peer-deps to avoid ERESOLVE failures caused by peer dependency mismatches
+          npm install --legacy-peer-deps --no-audit --no-fund
 
       - name: Run client tests with coverage
         run: |
@@ -56,10 +63,24 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           path-to-lcov: ./client/coverage/lcov.info
 
+      - name: Prepare server DB for tests
+        run: |
+          # Point tests to the GitHub Actions mongo service
+          echo "TEST_MONGO_URI=mongodb://localhost:27017/puntualo_test" >> $GITHUB_ENV
+          # Wait for mongo port to be ready
+          for i in {1..30}; do
+            if (</dev/tcp/localhost/27017) >/dev/null 2>&1; then
+              echo "mongo is up";
+              break;
+            fi;
+            echo "waiting for mongo... ($i)";
+            sleep 1;
+          done
+
       - name: Run server tests with coverage
         run: |
           cd server
-          npx vitest run --coverage || true
+          npm run test:coverage || true
 
       - name: Upload server coverage to Codecov
         uses: coverallsapp/github-action@v2
