@@ -88,15 +88,24 @@ jobs:
           ls -la server || true
           ls -la server/coverage || true
 
+      - name: Ensure server lcov exists
+        run: |
+          if [ -f server/coverage/lcov.info ]; then
+            echo "server/coverage/lcov.info found"
+          else
+            echo "ERROR: server/coverage/lcov.info not found"
+            ls -la server || true
+            ls -la server/coverage || true
+            exit 1
+          fi
+
       - name: Upload server coverage to Coveralls
         env:
           COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
         uses: coverallsapp/github-action@v2
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          path-to-lcov: ./coverage/lcov.info
-        # Run the action from the `server` working directory so the path above is correct
-        working-directory: server
+          path-to-lcov: ./server/coverage/lcov.info
 
       - name: Debug coverage files
         run: |
