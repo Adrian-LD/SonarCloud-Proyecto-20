@@ -148,8 +148,10 @@ export const userController = {
       const { id } = req.params // target to follow
       const me = (req as any).user
       if (!me || !me.id) return res.status(401).json({ message: 'Not authenticated' })
-      const data = await userService.followUser(me.id, id)
-      return res.json(data)
+      await userService.followUser(me.id, id)
+      // Return the current user's following list under the legacy `follows` key
+      const follows = await userService.getFollowing(me.id)
+      return res.json({ follows })
     } catch (error: any) {
       res.status(400).json({ message: error.message })
     }
@@ -160,8 +162,9 @@ export const userController = {
       const { id } = req.params // target to unfollow
       const me = (req as any).user
       if (!me || !me.id) return res.status(401).json({ message: 'Not authenticated' })
-      const data = await userService.unfollowUser(me.id, id)
-      return res.json(data)
+      await userService.unfollowUser(me.id, id)
+      const follows = await userService.getFollowing(me.id)
+      return res.json({ follows })
     } catch (error: any) {
       res.status(400).json({ message: error.message })
     }
