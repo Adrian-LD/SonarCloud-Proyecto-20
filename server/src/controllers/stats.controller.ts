@@ -1,5 +1,6 @@
 import { Request, Response } from 'express'
 import { UserModel, ItemModel } from '../models'
+import mongoose from 'mongoose'
 import { ItemType } from '../models/enums'
 
 export const statsController = {
@@ -65,6 +66,12 @@ async function computeTopRated() {
 
 async function refreshTopRated() {
   try {
+    // don't attempt aggregation if mongoose isn't connected yet (tests/CI start order)
+    if (mongoose.connection.readyState !== 1) {
+      // eslint-disable-next-line no-console
+      console.info('[stats] Skipping top-rated refresh: mongoose not connected')
+      return
+    }
     const data = await computeTopRated()
     topRatedCache = { data, lastUpdated: Date.now() }
   } catch (e: any) {
@@ -131,6 +138,12 @@ async function computeCombined() {
 
 async function refreshCombined() {
   try {
+    // avoid running combined aggregation when DB connection is not ready
+    if (mongoose.connection.readyState !== 1) {
+      // eslint-disable-next-line no-console
+      console.info('[stats] Skipping combined refresh: mongoose not connected')
+      return
+    }
     const data = await computeCombined()
     combinedCache = { data, lastUpdated: Date.now() }
   } catch (e: any) {
