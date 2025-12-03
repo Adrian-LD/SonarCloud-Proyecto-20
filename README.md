@@ -1,5 +1,7 @@
 # 🎬 Puntualo.com — Red Social Cultural
 
+[![Coverage Status](https://coveralls.io/repos/github/Adrian-LD/SonarCloud-Proyecto-20/badge.svg?branch=main)](https://coveralls.io/github/Adrian-LD/SonarCloud-Proyecto-20?branch=main)
+
 **Puntualo** es una red social innovadora desarrollada por el **Equipo 20** del proyecto SYTW.  
 Está pensada para los amantes del entretenimiento —libros, películas y series— que desean compartir sus experiencias culturales, descubrir nuevas obras y conectar con otros usuarios con gustos similares.   
 

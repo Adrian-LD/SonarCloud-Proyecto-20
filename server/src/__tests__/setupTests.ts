@@ -15,15 +15,25 @@ beforeAll(async () => {
 	// libcrypto/OpenSSL versions required by the downloaded mongod binary.
 	if (process.env.NODE_ENV === 'test') {
 		const providedTestUri = process.env.TEST_MONGO_URI;
+		// Decide a per-worker DB name suffix to avoid collisions when multiple
+		// Vitest workers run against the same Mongo service in CI.
+		const workerId = process.env.VITEST_WORKER_ID || String(process.pid);
+		const baseTestDb = process.env.TEST_DB_NAME || 'Puntualo_test';
+		// Always set a worker-specific TEST_DB_NAME so each worker uses an isolated DB.
+		process.env.TEST_DB_NAME = `${baseTestDb}_${workerId}`;
+
 		// If TEST_MONGO_URI is provided but equals the generic localhost default
 		// (often present in `.env.test`), still prefer an in-memory instance so
 		// CI/local tests are isolated. Only skip in-memory when a custom URI is set.
 		if (providedTestUri && providedTestUri !== 'mongodb://localhost:27017') {
-				// Use the provided TEST_MONGO_URI (no in-memory mongo needed)
-				// eslint-disable-next-line no-console
-				console.info('[test-setup] Using existing TEST_MONGO_URI, skipping in-memory MongoDB')
-				return
-			}
+			// Use the provided TEST_MONGO_URI (no in-memory mongo needed)
+			// eslint-disable-next-line no-console
+			console.info('[test-setup] Using existing TEST_MONGO_URI, skipping in-memory MongoDB')
+			// inform which DB name will be used
+			// eslint-disable-next-line no-console
+			console.info(`[test-setup] Using TEST_DB_NAME=${process.env.TEST_DB_NAME}`)
+			return
+		}
 
 		mongod = await MongoMemoryServer.create();
 		const uri = mongod.getUri();
