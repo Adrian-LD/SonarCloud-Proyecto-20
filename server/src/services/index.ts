@@ -1,0 +1,12 @@
+export {itemService} from './item.service';
+export {userService} from './user.service';
+export {recommendationService} from './recommendation.service';
+export {BookService} from './item_book.service';
+export {MovieService} from './item_movie.service';
+export {SeriesService} from './item_series.service';
+export { sendEmail } from './mail.service';
+export { sendRegisterEmail } from './email_register.service';
+export { sendFollowEmail } from './email_follow.service';
+export { sendTemplateEmail } from './mail_template.service';
+export { followRequestService } from './followRequest.service';
+export { notificationService } from './notification.service';

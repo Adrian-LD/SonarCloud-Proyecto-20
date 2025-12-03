@@ -5,6 +5,7 @@ on:
     branches: [ main ]
   pull_request:
     branches: [ main ]
+  workflow_dispatch: {}
 
 jobs:
   test-and-scan:
@@ -19,17 +20,30 @@ jobs:
           node-version: '20'
 
       - name: Install root dependencies
-        run: npm ci
+        run: |
+          if [ -f package-lock.json ]; then
+            npm ci
+          else
+            npm install
+          fi
 
       - name: Install client dependencies
         run: |
           cd client
-          npm ci
+          if [ -f package-lock.json ]; then
+            npm ci
+          else
+            npm install
+          fi
 
       - name: Install server dependencies
         run: |
           cd server
-          npm ci
+          if [ -f package-lock.json ]; then
+            npm ci
+          else
+            npm install
+          fi
 
       - name: Run client tests with coverage
         run: |
@@ -45,13 +59,30 @@ jobs:
       - name: Run server tests with coverage
         run: |
           cd server
-          npx vitest run --coverage --threads=false || true
+          npx vitest run --coverage || true
 
       - name: Upload server coverage to Codecov
         uses: coverallsapp/github-action@v2
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           path-to-lcov: ./server/coverage/lcov.info
+
+      - name: Debug coverage files
+        run: |
+          echo "Listing repository and coverage directories"
+          pwd
+          ls -la .
+          echo "--- client contents ---"
+          ls -la client || true
+          echo "--- client/coverage ---"
+          ls -la client/coverage || true
+          echo "--- server contents ---"
+          ls -la server || true
+          echo "--- server/coverage ---"
+          ls -la server/coverage || true
+          if [ -n "${{ secrets.SONAR_TOKEN }}" ]; then echo "SONAR_TOKEN is set"; else echo "SONAR_TOKEN is missing"; fi
+          if [ -n "${{ secrets.SONAR_ORGANIZATION }}" ]; then echo "SONAR_ORGANIZATION is set"; else echo "SONAR_ORGANIZATION is missing"; fi
+          if [ -n "${{ secrets.SONAR_PROJECT_KEY }}" ]; then echo "SONAR_PROJECT_KEY is set"; else echo "SONAR_PROJECT_KEY is missing"; fi
 
       - name: SonarCloud Scan
         uses: sonarsource/sonarcloud-github-action@v1
