@@ -22,10 +22,13 @@ beforeAll(async () => {
 		// Always set a worker-specific TEST_DB_NAME so each worker uses an isolated DB.
 		process.env.TEST_DB_NAME = `${baseTestDb}_${workerId}`;
 
-		// If TEST_MONGO_URI is provided but equals the generic localhost default
-		// (often present in `.env.test`), still prefer an in-memory instance so
-		// CI/local tests are isolated. Only skip in-memory when a custom URI is set.
-		if (providedTestUri && providedTestUri !== 'mongodb://localhost:27017') {
+		// If TEST_MONGO_URI is provided and the caller also provided a TEST_DB_NAME,
+		// treat that as an explicit request to use the system Mongo (for example
+		// when running a local `mongo:6` container). Otherwise, when the URI is
+		// the generic localhost default coming from `.env.test`, prefer the
+		// in-memory instance for isolation.
+		const explicitDbProvided = !!process.env.TEST_DB_NAME;
+		if (providedTestUri && (providedTestUri !== 'mongodb://localhost:27017' || explicitDbProvided)) {
 			// Use the provided TEST_MONGO_URI (no in-memory mongo needed)
 			// eslint-disable-next-line no-console
 			console.info('[test-setup] Using existing TEST_MONGO_URI, skipping in-memory MongoDB')
