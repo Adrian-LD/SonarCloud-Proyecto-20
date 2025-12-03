@@ -94,7 +94,9 @@ jobs:
         uses: coverallsapp/github-action@v2
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          path-to-lcov: ./server/coverage/lcov.info
+          path-to-lcov: ./coverage/lcov.info
+        # Run the action from the `server` working directory so the path above is correct
+        working-directory: server
 
       - name: Debug coverage files
         run: |
